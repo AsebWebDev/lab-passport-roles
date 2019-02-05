@@ -1,0 +1,18 @@
+<h1>Eployees  </h1>
+<ul>
+
+  {{#each users}}
+    <p>Employee: {{username}}</p>
+    {{#if ../isBoss }}
+    <form action="/delete/{{_id}}" method="post">
+      <button>Delete</button></a>
+    </form>
+    {{/if}}
+    <form action="/profile/{{_id}}" method="post">
+      <button>View Profile</button></a>
+    </form>
+  {{/each}}
+
+</ul>
+
+<a href="/">Home</a>

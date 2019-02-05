@@ -1,0 +1,27 @@
+<h1>Admin-Page</h1>
+
+<h2>Add a new user</h2>
+
+<form action="/adduser" method="POST">
+  <label for="username">Username</label>
+  <input id="username" type="text" name="username" placeholder="JonSnow">
+  <br><br>
+  <label for="password">Password</label>
+  <input id="password" type="password" name="password" placeholder="Your password">
+  <br><br>
+  <label for="role">Role</label>
+  <select name="role">
+    <option value="Developer">Developer</option>
+    <option value="TA">TA</option>
+    <option value="Boss">Boss</option>
+  </select>
+
+  {{#if message}}
+    <div class="error-message">{{ message }}</div>
+  {{/if}}
+  <br><br>
+
+  <button>Create User</button>
+
+  <a href="/">Home</a>
+</form>

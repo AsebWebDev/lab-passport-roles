@@ -8,10 +8,16 @@ const hbs          = require('hbs');
 const mongoose     = require('mongoose');
 const logger       = require('morgan');
 const path         = require('path');
+const session = require("express-session");
+const bcrypt = require("bcrypt");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const flash = require("connect-flash");
+const User = require("./models/User");
 
-
+// Setup MongoDB
 mongoose
-  .connect('mongodb://localhost/starter-code', {useNewUrlParser: true})
+  .connect('mongodb://localhost/lab-passport-roles', {useNewUrlParser: true})
   .then(x => {
     console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
   })
@@ -30,6 +36,46 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+// Passport Setup
+app.use(session({
+  secret: "our-passport-local-strategy-app",
+  resave: true,
+  saveUninitialized: true
+}));
+
+passport.serializeUser((user, cb) => {
+  cb(null, user._id);
+});
+
+passport.deserializeUser((id, cb) => {
+  User.findById(id, (err, user) => {
+    if (err) { return cb(err); }
+    cb(null, user);
+  });
+});
+
+app.use(flash());
+passport.use(new LocalStrategy({passReqToCallback: true}, 
+  // add usernameField: email if you want something else than the default, which is username
+  (req, username, password, next) => {
+  User.findOne({ username }, (err, user) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return next(null, false, { message: "Incorrect username" });
+    }
+    if (!bcrypt.compareSync(password, user.password)) {
+      return next(null, false, { message: "Incorrect password" });
+    }
+
+    return next(null, user);
+  });
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Express View engine setup
 
 app.use(require('node-sass-middleware')({
@@ -38,19 +84,34 @@ app.use(require('node-sass-middleware')({
   sourceMap: true
 }));
       
-
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 
-
 // default value for title local
-app.locals.title = 'Express - Generated with IronGenerator';
+app.locals.title = 'Lab - Passport roles';
+// app.locals.isBoss = "true"
 
+app.use((req,res,next) => {
+  console.log(req.session.passport)
+  // !! converts: truthy into true; falsy into false
+  // A variable isConnected is defined for the view that will be used
+  res.locals.isConnected = !!req.user;
+  if (!!req.user) {
+    res.locals.isBoss = req.user.role === "Boss";
+  }
+  // if (!!req.session.passport) {
+  //   res.locals.isOwner2 = (req.session.passport.user == req.params.id)
+	// 	console.log('TCL: req.session.passport.user', req.session.passport.user)
+	// 	console.log('TCL: req.params.id', req.params.id)
+  //   // res.locals.isOwner = req.
+  // }
+  next();
+});
 
-
+// Route Basis
 const index = require('./routes/index');
 app.use('/', index);
 
