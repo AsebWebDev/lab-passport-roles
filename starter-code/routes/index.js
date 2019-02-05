@@ -79,11 +79,10 @@ router.post("/signup", (req, res, next) => {
 
 // View Profile
 
-router.post('/profile/:id', isConnected, (req, res, next) => {
+router.get('/profile/:id', isConnected, (req, res, next) => {
   User.findById(req.params.id)
   .then((user) => {
-    let isOwner = false
-    if (req.session.passport.user == req.params.id) isOwner = true
+    let isOwner = req.user._id.equals(req.params.id)
     res.render("profile", {user: user, isOwner: isOwner});
   })
   .catch(error => {
