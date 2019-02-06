@@ -106,6 +106,9 @@ router.get('/addcourse', checkTA, (req, res, next) => {
 // TA Add Course
 router.post("/addcourse", checkTA, (req, res, next) => {
   const courseName = req.body.courseName;
+  const sport = req.body.sport;
+  const courseLng = req.body.courseLng;
+  const courseLat = req.body.courseLat;
 
   if (courseName === "") {
     res.render("addCourse", { message: "Indicate Course Name" });
@@ -120,7 +123,9 @@ router.post("/addcourse", checkTA, (req, res, next) => {
     }
 
     const newCourse = new Course({
-      courseName
+      courseName: courseName,
+      sport: sport,
+      location: {type: "Point", coordinates: [courseLng, courseLat]}
     });
 
     newCourse.save((err) => {
@@ -212,6 +217,15 @@ router.post('/delete/:id', checkAdmin, (req, res, next) => {
     console.log(error);
     next();
   });
+});
+
+// API 
+router.get('/api/courses', (req,res,next) => {
+  Course.find()
+    .then(courses => {
+      res.json(courses);
+    })
+    .catch(err => console.log(err));
 });
 
 module.exports = router;

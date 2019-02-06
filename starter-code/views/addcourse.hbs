@@ -5,6 +5,16 @@
 <form action="/addcourse" method="POST">
   <label for="courseName">Course Name</label>
   <input id="courseName" type="text" name="courseName" placeholder="Name of Course">
+  <select name="sport">
+    <option value="basketball">Basketball</option>
+    <option value="football">Football</option>
+    <option value="tennis">Tennis</option>
+  </select>
+  <label for="courseLng">Lng</label>  
+  <input id="courseLng" type="number" step="any" name="courseLng" placeholder="Lng">
+  <label for="courseLat">Lat</label>
+  <input id="courseLat" type="number" step="any" name="courseLat" placeholder="Lat">
+
   <br><br>
 
   {{#if message}}

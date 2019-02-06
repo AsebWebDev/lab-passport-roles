@@ -1,8 +1,40 @@
 <h1>Courses  </h1>
+
+<div id="map" style="height: 500px;"></div>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoiYXNlYndlYmRldiIsImEiOiJjanJ0ODV6MDgwaTNvNDNteTM0M2JsaDBpIn0.Xc7UMIWCDtK2c4RRT3R3qw';
+  let map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/streets-v11'
+  });
+
+  axios.get("/api/courses")
+  .then ((response) => {
+    let courses = response.data;
+    for (let i = 0; i < courses.length; i++) {
+        // coordinates is an array with 2 numbers: lng, lat
+        let coordinates = courses[i].location.coordinates
+        let color = 'green'
+        if (courses[i].sport === 'basketball') color = 'orange'
+        if (courses[i].sport === 'tennis') color = 'yellow'
+        let marker = new mapboxgl.Marker({ color })
+          .setLngLat(coordinates)
+          .addTo(map);
+      }
+  })
+  .catch(err => console.log(err));
+
+  let marker = new mapboxgl.Marker()
+    .setLngLat([30.5, 50.5])
+    .addTo(map);
+</script>
+
 <ul>
 
   {{#each courses}}
     <p>Course: {{courseName}}</p>
+    <p>Sport: {{Sport}}</p>
+
     {{#if ../isTA }}
     <form action="/deleteCourse/{{_id}}" method="post">
       <button>Delete</button></a>
@@ -13,3 +45,5 @@
 </ul>
 
 <a href="/">Home</a>
+{{!-- <script src="/javascripts/test.js"></script> --}}
+{{!-- <script src="/javascripts/map.js"></script> --}}
