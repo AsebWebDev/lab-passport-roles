@@ -2,11 +2,12 @@ const express = require('express');
 const router  = express.Router();
 const passport = require("passport");
 const bcrypt = require("bcrypt");
-const { isConnected, checkAdmin, isOwner, checkRole } = require('../middlewares')
+const { isConnected, checkAdmin, checkTA, checkRole } = require('../middlewares')
 const ensureLogin = require("connect-ensure-login");
 
 // User model
 const User = require("../models/User");
+const Course = require("../models/Course");
 
 /* GET home page */
 router.get('/', (req, res, next) => {
@@ -97,6 +98,45 @@ router.get("/logout", (req, res) => {
   res.redirect("/login");
 });
 
+// TA Page
+router.get('/addcourse', checkTA, (req, res, next) => {
+  res.render('addcourse');
+});
+
+// TA Add Course
+router.post("/addcourse", checkTA, (req, res, next) => {
+  const courseName = req.body.courseName;
+
+  if (courseName === "") {
+    res.render("addCourse", { message: "Indicate Course Name" });
+    return;
+  }
+
+  Course.findOne({ courseName })
+  .then(course => {
+    if (course !== null) {
+      res.render("addcourse", { message: "The Course ealready exists" });
+      return;
+    }
+
+    const newCourse = new Course({
+      courseName
+    });
+
+    newCourse.save((err) => {
+      if (err) {
+        res.render("addcourse", { message: "Something went wrong" });
+      } else {
+        res.redirect("/");
+      }
+    });
+  })
+  .catch(error => {
+    next(error);
+  });
+});
+
+
 // Admin Page
 router.get('/adduser', checkAdmin, (req, res, next) => {
   res.render('adduser');
@@ -120,6 +160,7 @@ router.post("/adduser", checkAdmin, (req, res, next) => {
       return;
     }
 
+    const bcryptRounds = 10;
     const salt = bcrypt.genSaltSync(bcryptRounds);
     const hashPass = bcrypt.hashSync(password, salt);
 
@@ -148,6 +189,15 @@ router.get('/employees', isConnected, (req,res,next) => {
   User.find()
     .then(users => {
       res.render('employees', {users: users, role: req.user.role});
+    });
+});
+
+// Show Courses
+
+router.get('/courses', isConnected, (req,res,next) => {
+  Course.find()
+    .then(courses => {
+      res.render('courses', {courses: courses, role: req.user.role});
     });
 });
 

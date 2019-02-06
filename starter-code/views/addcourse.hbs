@@ -1,0 +1,18 @@
+<h1>TA-Page</h1>
+
+<h2>Add a new course</h2>
+
+<form action="/addcourse" method="POST">
+  <label for="courseName">Course Name</label>
+  <input id="courseName" type="text" name="courseName" placeholder="Name of Course">
+  <br><br>
+
+  {{#if message}}
+    <div class="error-message">{{ message }}</div>
+  {{/if}}
+  <br><br>
+
+  <button>Create Course</button>
+
+  <a href="/">Home</a>
+</form>

@@ -1,0 +1,15 @@
+<h1>Courses  </h1>
+<ul>
+
+  {{#each courses}}
+    <p>Course: {{courseName}}</p>
+    {{#if ../isTA }}
+    <form action="/deleteCourse/{{_id}}" method="post">
+      <button>Delete</button></a>
+    </form>
+    {{/if}}
+  {{/each}}
+
+</ul>
+
+<a href="/">Home</a>

@@ -14,6 +14,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const flash = require("connect-flash");
 const User = require("./models/User");
+const Course = require("./models/Course");
 
 // Setup MongoDB
 mongoose
@@ -92,7 +93,6 @@ app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 // default value for title local
 app.locals.title = 'Lab - Passport roles';
-// app.locals.isBoss = "true"
 
 app.use((req,res,next) => {
   console.log(req.session.passport)
@@ -101,13 +101,9 @@ app.use((req,res,next) => {
   res.locals.isConnected = !!req.user;
   if (!!req.user) {
     res.locals.isBoss = req.user.role === "Boss";
+    res.locals.isTA = req.user.role === "TA" || req.user.role === "Boss";
   }
-  // if (!!req.session.passport) {
-  //   res.locals.isOwner2 = (req.session.passport.user == req.params.id)
-	// 	console.log('TCL: req.session.passport.user', req.session.passport.user)
-	// 	console.log('TCL: req.params.id', req.params.id)
-  //   // res.locals.isOwner = req.
-  // }
+
   next();
 });
 

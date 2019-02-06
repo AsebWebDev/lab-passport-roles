@@ -18,6 +18,15 @@ module.exports = {
       res.render("index", { user: req.user, message: "You have to be Boss for this operation" });
     }
   },
+  checkTA: function(req,res,next) {
+    if (req.user && req.user.role === 'TA' || req.user.role === 'Boss') {
+      next()
+    }
+    else {
+      backURL=req.header('Referer') || '/';
+      res.render("index", { user: req.user, message: "You have to be TA for this operation" });
+    }
+  },
   checkRole: function(role) {
     return function(req,res,next) {
       if (req.user && req.user.role === role) {
